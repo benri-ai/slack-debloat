@@ -25,7 +25,7 @@ No patching of Slack.app (it's code-signed; modifying it breaks Gatekeeper and K
 ## Install
 
 ```bash
-git clone https://github.com/OWNER/slack-debloat.git
+git clone https://github.com/benri-ai/slack-debloat.git
 cd slack-debloat
 ./install.sh
 ```
