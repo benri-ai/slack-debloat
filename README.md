@@ -4,6 +4,12 @@ De-bloat the **native** Slack app on macOS with your own CSS and JS — like uBl
 
 Slack's macOS app is Electron, i.e. a Chromium rendering the same web app as your browser — you just normally can't put extensions in it. slack-debloat launches Slack with its Chrome DevTools Protocol port open (localhost-only) and runs a tiny zero-dependency injector that pushes your `custom.css` / `custom.js` into every Slack window, keeps them across reloads, and **live-reapplies within a second whenever you save**. Hide the Activity tab, the huddle button, Slackbot, upsell banners — whatever annoys you.
 
+| Before | After |
+|:--|:--|
+| <img src="docs/before.png" width="380"> | <img src="docs/after.png" width="380"> |
+
+Hidden rows collapse for real (no blank slots — see auto-reflow below), and you can restyle what stays: here Threads got promoted to 18px semibold.
+
 ## How it works
 
 ```
