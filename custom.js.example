@@ -1,0 +1,6 @@
+// slack-debloat — optional JS, runs in every Slack window on load and
+// again on every save of this file (like a self-hosted Tampermonkey).
+// Because it re-runs on save, write idempotent code.
+//
+// Example: log so you can confirm it ran (DevTools at localhost:9222)
+console.log("[slack-debloat] custom.js active");

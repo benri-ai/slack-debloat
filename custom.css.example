@@ -1,0 +1,50 @@
+/* slack-debloat — your stylesheet. Edit and save; changes apply to the
+ * running Slack app within ~1 second (no restart needed).
+ *
+ * Finding selectors: while Slack runs debloated, open
+ * http://localhost:9222 in Chrome/Edge and you get full DevTools on the
+ * native app. Prefer Slack's [data-qa=...] attributes over generated
+ * class names — they're far more stable across updates.
+ *
+ * The selectors below are examples verified on Slack 4.49; treat them as
+ * starting points and verify in DevTools before relying on them.
+ */
+
+/* --- Sidebar top cluster ---
+ * Sidebar rows are virtualized (absolutely positioned), so hide the whole
+ * [data-qa="virtual-list-item"] wrapper via :has(). Note the data-qa of
+ * these items can vary per workspace — check yours in DevTools.
+ */
+/*
+[data-qa="virtual-list-item"]:has([data-qa^="channel_sidebar_pslackbot"]),
+[data-qa="virtual-list-item"]:has([data-qa="channel_sidebar_vall_threads"]),
+[data-qa="virtual-list-item"]:has([data-qa="channel_sidebar_pbrowse-huddles"]),
+[data-qa="virtual-list-item"]:has([data-qa="channel_sidebar_pdrafts"]),
+[data-qa="virtual-list-item"]:has([data-qa="channel_sidebar_directories_link"]) {
+  display: none !important;
+}
+*/
+
+/* --- Left control strip (tab rail) --- */
+/*
+[data-qa="tab_rail_activity_button"] { display: none !important; }
+[data-qa="tab_rail_later_button"]    { display: none !important; }
+[data-qa="tab_rail_files_button"]    { display: none !important; }
+*/
+
+/* --- Huddles button in channel header --- */
+/*
+[data-qa="huddle_button"] { display: none !important; }
+*/
+
+/* Sanity marker: subtle 1px line at the very top of the window proves
+ * injection is working. Delete once you trust the setup. */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: #2bac76;
+  z-index: 99999;
+  pointer-events: none;
+}
