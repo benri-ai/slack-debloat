@@ -39,6 +39,13 @@
 [data-qa="huddle_button"] { display: none !important; }
 */
 
+/* --- "Megaphone" upsell banners in the message pane ---
+ * Slack's in-channel promos (Business+ trials etc.) render into this
+ * container (verified on 4.50). The auto-reflow closes the slot. */
+/*
+#message-list_megaphone_container { display: none !important; }
+*/
+
 /* Sanity marker: subtle 1px line at the very top of the window proves
  * injection is working. Delete once you trust the setup. */
 body::before {
