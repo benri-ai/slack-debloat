@@ -88,4 +88,5 @@ echo "  injector:  running as LaunchAgent ${LABEL} (log: ${DIR}/injector.log)"
 echo "  launcher:  ${APP} — put this in your Dock instead of Slack"
 echo "  styles:    edit ${DIR}/custom.css — applies live within ~1s"
 echo
-echo "Launch Slack via 'Slack Debloat' now to activate."
+echo "Launch Slack via 'Slack Debloat' now to activate, then run"
+echo "'node configure.mjs' to pick what to hide."

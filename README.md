@@ -49,7 +49,9 @@ A thin green line at the very top of the Slack window confirms injection is work
 
 ## Usage
 
-**Hide things:** edit `custom.css`, save — the running Slack updates in ~1s. The `.example` file ships with commented-out rules for common annoyances (sidebar Slackbot/Threads/Huddles/Drafts entries, Activity/Later tabs, huddle button).
+**Pick from the menu:** `node configure.mjs` lists the known debloat targets — sidebar rows (Slackbot, Huddles, Drafts…), rail tabs (Activity, Later, Files, Tools), the huddle button, upsell banners — with live probing against your running Slack so you can see which selectors exist in your workspace before enabling them. Choices are saved to a managed block in `custom.css` and apply within a second; re-run anytime to change your mind. Hand-written rules outside the block are never touched.
+
+**Hide things by hand:** edit `custom.css`, save — the running Slack updates in ~1s. The `.example` file ships with commented-out rules for common annoyances (sidebar Slackbot/Threads/Huddles/Drafts entries, Activity/Later tabs, huddle button).
 
 **Find selectors:** while Slack runs debloated, open **http://localhost:9222** in Chrome and you get full DevTools against the native app. Prefer Slack's `[data-qa=...]` attributes — they're much more stable than the generated class names. Sidebar rows are virtualized, so hide the whole row wrapper:
 
