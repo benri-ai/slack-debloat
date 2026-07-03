@@ -12,8 +12,10 @@
 
 /* --- Sidebar top cluster ---
  * Sidebar rows are virtualized (absolutely positioned), so hide the whole
- * [data-qa="virtual-list-item"] wrapper via :has(). Note the data-qa of
- * these items can vary per workspace — check yours in DevTools.
+ * [data-qa="virtual-list-item"] wrapper via :has() — the injector's
+ * auto-reflow then shifts the remaining rows up so no gap is left.
+ * Note the data-qa of these items can vary per workspace — check yours
+ * in DevTools.
  */
 /*
 [data-qa="virtual-list-item"]:has([data-qa^="channel_sidebar_pslackbot"]),

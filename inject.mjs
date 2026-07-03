@@ -35,10 +35,67 @@ function cssPayload() {
   })();`;
 }
 
-// CSS + custom.js — runs on attach, page load, and file save (not every tick).
+// Sidebar reflow: Slack's sidebar is a virtual list — rows are absolutely
+// positioned with inline \`top\`, so a row hidden via display:none leaves an
+// empty slot instead of collapsing. This shim shifts every visible row up
+// by the total height of hidden rows above it, re-applying via
+// MutationObserver whenever Slack repositions things. Hide whole rows
+// ([data-qa="virtual-list-item"]:has(...)) for this to kick in.
+function reflowPayload() {
+  return `(() => {
+    const install = () => {
+      const reflow = () => {
+        for (const list of document.querySelectorAll('[data-qa="slack_kit_list"]')) {
+          const rows = [...list.querySelectorAll('[data-qa="virtual-list-item"]')]
+            .map((el) => {
+              const cur = parseFloat(el.style.top);
+              if (Number.isNaN(cur)) return null;
+              // Recover the row's original top: if the current value is what
+              // we wrote last time, Slack hasn't repositioned it — keep the
+              // stored original. Otherwise adopt the new value as original.
+              let orig;
+              if (el.dataset.sdSet !== undefined && parseFloat(el.dataset.sdSet) === cur) {
+                orig = parseFloat(el.dataset.sdOrig);
+              } else {
+                orig = cur;
+                el.dataset.sdOrig = String(cur);
+                delete el.dataset.sdSet;
+              }
+              return { el, orig, h: parseFloat(el.style.height) || el.offsetHeight };
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.orig - b.orig);
+          let shift = 0;
+          for (const r of rows) {
+            if (getComputedStyle(r.el).display === "none") { shift += r.h; continue; }
+            const want = r.orig - shift;
+            if (parseFloat(r.el.style.top) !== want) r.el.style.top = want + "px";
+            r.el.dataset.sdSet = String(want);
+          }
+        }
+      };
+      // Debounced re-run on any DOM/position change. Our own writes trigger
+      // one extra pass, which is then a no-op, so it settles.
+      window.__sdReflowObs?.disconnect();
+      let t;
+      const kick = () => { clearTimeout(t); t = setTimeout(reflow, 80); };
+      window.__sdReflowObs = new MutationObserver(kick);
+      window.__sdReflowObs.observe(document.body, {
+        subtree: true, childList: true, attributes: true, attributeFilter: ["style", "class"],
+      });
+      kick();
+    };
+    if (document.body) install();
+    else document.addEventListener("DOMContentLoaded", install, { once: true });
+  })();`;
+}
+
+// CSS + reflow + custom.js — runs on attach, page load, and file save
+// (not every tick).
 function fullPayload() {
   const js = read(JS_FILE);
   return `${cssPayload()}
+  ${reflowPayload()}
   (() => { try { ${js} } catch (e) { console.warn("slack-debloat custom.js:", e); } })();`;
 }
 

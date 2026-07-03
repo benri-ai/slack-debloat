@@ -53,12 +53,16 @@ A thin green line at the very top of the Slack window confirms injection is work
 }
 ```
 
+Rows hidden this way don't leave blank slots: the injector ships an auto-reflow shim that detects hidden virtual-list rows and shifts the remaining rows up, re-applying whenever Slack re-renders. The sidebar collapses cleanly, as if the items never existed.
+
 **Run scripts:** `custom.js` runs in every Slack window on load and on every save (write idempotent code).
 
 **Poke at the DOM from a terminal:**
 
 ```bash
 node eval.mjs 'document.title'
+node screenshot.mjs slack.png                        # full window
+node screenshot.mjs sidebar.png '.p-channel_sidebar' # clipped to a selector
 ```
 
 ## FAQ
