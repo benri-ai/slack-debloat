@@ -46,31 +46,25 @@ function reflowPayload() {
     const install = () => {
       const reflow = () => {
         for (const list of document.querySelectorAll('[data-qa="slack_kit_list"]')) {
+          // Never touch Slack's inline \`top\` — virtual lists recycle DOM
+          // nodes while scrolling, so any stored "original position" goes
+          // stale and rows collide. Instead treat \`top\` as the source of
+          // truth and apply our shift as a transform, recomputed from
+          // scratch (stateless, idempotent) on every pass.
           const rows = [...list.querySelectorAll('[data-qa="virtual-list-item"]')]
             .map((el) => {
-              const cur = parseFloat(el.style.top);
-              if (Number.isNaN(cur)) return null;
-              // Recover the row's original top: if the current value is what
-              // we wrote last time, Slack hasn't repositioned it — keep the
-              // stored original. Otherwise adopt the new value as original.
-              let orig;
-              if (el.dataset.sdSet !== undefined && parseFloat(el.dataset.sdSet) === cur) {
-                orig = parseFloat(el.dataset.sdOrig);
-              } else {
-                orig = cur;
-                el.dataset.sdOrig = String(cur);
-                delete el.dataset.sdSet;
-              }
-              return { el, orig, h: parseFloat(el.style.height) || el.offsetHeight };
+              const top = parseFloat(el.style.top);
+              if (Number.isNaN(top)) return null;
+              delete el.dataset.sdOrig; delete el.dataset.sdSet; // legacy cleanup
+              return { el, top, h: parseFloat(el.style.height) || el.offsetHeight };
             })
             .filter(Boolean)
-            .sort((a, b) => a.orig - b.orig);
+            .sort((a, b) => a.top - b.top);
           let shift = 0;
           for (const r of rows) {
             if (getComputedStyle(r.el).display === "none") { shift += r.h; continue; }
-            const want = r.orig - shift;
-            if (parseFloat(r.el.style.top) !== want) r.el.style.top = want + "px";
-            r.el.dataset.sdSet = String(want);
+            const want = shift ? \`translateY(-\${shift}px)\` : "";
+            if (r.el.style.transform !== want) r.el.style.transform = want;
           }
         }
       };

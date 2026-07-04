@@ -14,7 +14,7 @@ ws.onopen = () =>
   ws.send(JSON.stringify({
     id: 1,
     method: "Runtime.evaluate",
-    params: { expression: expr, returnByValue: true },
+    params: { expression: expr, returnByValue: true, awaitPromise: true },
   }));
 ws.onmessage = (m) => {
   const { result } = JSON.parse(m.data);
