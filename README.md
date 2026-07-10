@@ -39,7 +39,7 @@ cd slack-debloat
 Then launch Slack via the new **Slack Debloat** app (it wears Slack's own icon) and put it in your Dock in place of Slack. That's it.
 
 The installer:
-1. seeds `custom.css` / `custom.js` from the `.example` files (your copies are gitignored),
+1. seeds `config.json` / `custom.css` / `custom.js` from the `.example` files (your copies are gitignored),
 2. installs a LaunchAgent that keeps the injector running from login,
 3. builds `/Applications/Slack Debloat.app`.
 
@@ -49,9 +49,42 @@ A thin green line at the very top of the Slack window confirms injection is work
 
 ## Usage
 
-**Pick from the menu:** `node configure.mjs` lists the known debloat targets — sidebar rows (Slackbot, Huddles, Drafts…), rail tabs (Activity, Later, Files, Tools), the huddle button, upsell banners — with live probing against your running Slack so you can see which selectors exist in your workspace before enabling them. Choices are saved to a managed block in `custom.css` and apply within a second; re-run anytime to change your mind. Hand-written rules outside the block are never touched.
+### config.json — the built-in options
 
-**Hide things by hand:** edit `custom.css`, save — the running Slack updates in ~1s. The `.example` file ships with commented-out rules for common annoyances (sidebar Slackbot/Threads/Huddles/Drafts entries, Activity/Later tabs, huddle button).
+`config.json` (seeded from `config.json.example` on install) is a flat map of option keys to booleans. Flip a key to `true`, save, and the running Slack updates within a second — no restart, no rebuild. It's plain JSON on purpose: edit it by hand, or point your LLM at this README and let it do the flipping.
+
+```json
+{
+  "hide-slackbot-dm": true,
+  "hide-upsell-banners": true,
+  "bigger-threads-row": true
+}
+```
+
+(Keys you omit default to off; unknown keys are ignored with a warning in `injector.log`.)
+
+| key | what it does |
+|---|---|
+| `hide-slackbot-dm` | Slackbot DM row in the sidebar |
+| `hide-threads-row` | Threads row in the sidebar |
+| `hide-huddles-row` | Huddles row in the sidebar |
+| `hide-drafts-row` | Drafts & sent row in the sidebar |
+| `hide-directory-row` | Directory row in the sidebar |
+| `hide-slack-connect-row` | External connections (Slack Connect) header in the sidebar |
+| `hide-activity-tab` | Activity tab in the left rail (hides its badge too) |
+| `hide-later-tab` | Later tab in the left rail |
+| `hide-files-tab` | Files tab in the left rail |
+| `hide-tools-tab` | Tools tab in the left rail |
+| `hide-huddle-button` | Huddle button in the channel header |
+| `hide-slackbot-ai-button` | Slackbot AI button next to the search bar |
+| `hide-upsell-banners` | In-channel "megaphone" promo banners (Business+ trials etc.) |
+| `bigger-threads-row` | Make the Threads sidebar row larger (18px semibold, bigger icon) |
+
+The selectors behind these keys live in `catalog.mjs`, verified on Slack 4.50. Slack updates occasionally rename them; fixes are usually a two-minute DevTools job (see below) — PRs welcome.
+
+### custom.css / custom.js — everything else
+
+**Hide things by hand:** for anything not in the catalog, edit `custom.css`, save — same ~1s live apply. The `.example` file ships with commented-out rules showing the patterns.
 
 **Find selectors:** while Slack runs debloated, open **http://localhost:9222** in Chrome and you get full DevTools against the native app. Prefer Slack's `[data-qa=...]` attributes — they're much more stable than the generated class names. Sidebar rows are virtualized, so hide the whole row wrapper:
 

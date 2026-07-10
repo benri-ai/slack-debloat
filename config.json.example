@@ -1,0 +1,16 @@
+{
+  "hide-slackbot-dm": false,
+  "hide-threads-row": false,
+  "hide-huddles-row": false,
+  "hide-drafts-row": false,
+  "hide-directory-row": false,
+  "hide-slack-connect-row": false,
+  "hide-activity-tab": false,
+  "hide-later-tab": false,
+  "hide-files-tab": false,
+  "hide-tools-tab": false,
+  "hide-huddle-button": false,
+  "hide-slackbot-ai-button": true,
+  "hide-upsell-banners": true,
+  "bigger-threads-row": false
+}

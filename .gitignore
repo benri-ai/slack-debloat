@@ -1,4 +1,5 @@
 # Your personal customizations (seeded from the .example files by install.sh)
+config.json
 custom.css
 custom.js
 injector.log

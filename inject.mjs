@@ -8,18 +8,33 @@
 import { readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { OPTIONS } from "./catalog.mjs";
 
 const PORT = process.env.SLACK_CDP_PORT || 9222;
 const BASE = `http://127.0.0.1:${PORT}`;
 const DIR = dirname(fileURLToPath(import.meta.url));
+const CONFIG_FILE = join(DIR, "config.json");
 const CSS_FILE = join(DIR, "custom.css");
 const JS_FILE = join(DIR, "custom.js");
 
 const read = (f) => { try { return readFileSync(f, "utf8"); } catch { return ""; } };
 
+// CSS generated from config.json — enabled catalog keys become rules.
+function configCss() {
+  let cfg = {};
+  try { cfg = JSON.parse(read(CONFIG_FILE) || "{}"); }
+  catch { console.warn("[config] config.json is not valid JSON — ignoring it"); }
+  for (const k of Object.keys(cfg)) {
+    if (!OPTIONS.some((o) => o.key === k)) console.warn(`[config] unknown key: ${k}`);
+  }
+  return OPTIONS.filter((o) => cfg[o.key] === true)
+    .map((o) => `/* ${o.key} */\n${o.css}`)
+    .join("\n\n");
+}
+
 // Idempotent style upsert — safe to run repeatedly and before DOM is ready.
 function cssPayload() {
-  const css = JSON.stringify(read(CSS_FILE));
+  const css = JSON.stringify(`${configCss()}\n\n${read(CSS_FILE)}`);
   return `(() => {
     const run = () => {
       let el = document.getElementById("slack-debloat-css");
@@ -139,14 +154,15 @@ function attach(t) {
 // Live-reload via mtime polling — fs.watch silently dies when editors
 // replace the file (rename/new inode), so poll instead.
 const mtime = (f) => { try { return statSync(f).mtimeMs; } catch { return 0; } };
-let lastStamp = mtime(CSS_FILE) + mtime(JS_FILE);
+const stampAll = () => mtime(CONFIG_FILE) + mtime(CSS_FILE) + mtime(JS_FILE);
+let lastStamp = stampAll();
 
 console.log(`slack-debloat: watching ${BASE} …`);
 while (true) {
   try { (await targets()).forEach(attach); }
   catch { /* Slack not up yet, or port closed — keep polling */ }
 
-  const stamp = mtime(CSS_FILE) + mtime(JS_FILE);
+  const stamp = stampAll();
   const changed = stamp !== lastStamp;
   if (changed) {
     lastStamp = stamp;

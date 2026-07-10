@@ -18,8 +18,9 @@ NODE="$(command -v node || true)"
   || { echo "error: Node.js >= 22 required (built-in WebSocket), found $("$NODE" --version)"; exit 1; }
 
 # --- 1. user files ---
-[ -f "$DIR/custom.css" ] || cp "$DIR/custom.css.example" "$DIR/custom.css"
-[ -f "$DIR/custom.js" ]  || cp "$DIR/custom.js.example"  "$DIR/custom.js"
+[ -f "$DIR/config.json" ] || cp "$DIR/config.json.example" "$DIR/config.json"
+[ -f "$DIR/custom.css" ]  || cp "$DIR/custom.css.example"  "$DIR/custom.css"
+[ -f "$DIR/custom.js" ]   || cp "$DIR/custom.js.example"   "$DIR/custom.js"
 
 # --- 2. LaunchAgent (injector) ---
 mkdir -p "$HOME/Library/LaunchAgents"
@@ -86,7 +87,7 @@ cp /Applications/Slack.app/Contents/Resources/electron.icns "$APP/Contents/Resou
 echo "✓ installed"
 echo "  injector:  running as LaunchAgent ${LABEL} (log: ${DIR}/injector.log)"
 echo "  launcher:  ${APP} — put this in your Dock instead of Slack"
-echo "  styles:    edit ${DIR}/custom.css — applies live within ~1s"
+echo "  config:    edit ${DIR}/config.json — applies live within ~1s"
 echo
-echo "Launch Slack via 'Slack Debloat' now to activate, then run"
-echo "'node configure.mjs' to pick what to hide."
+echo "Launch Slack via 'Slack Debloat' now to activate, then flip options"
+echo "in config.json (see README for what each key does)."
